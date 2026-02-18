@@ -27,8 +27,7 @@ export async function saveSession(session: SymptomSession): Promise<string> {
     return docRef.id;
   } catch (error: unknown) {
     if (typeof error === 'object' && error !== null && 'code' in error) {
-      // @ts-expect-error FirebaseError shape
-      const code = error.code as string;
+      const code = (error as { code?: string }).code;
       if (code === 'permission-denied') {
         console.warn(
           'Firestore permission denied when saving session. Skipping persistence but keeping UI flow.'
@@ -76,8 +75,7 @@ export async function getUserSessions(userId: string, maxResults = 10): Promise<
   } catch (error: unknown) {
     // Common in locked-down Firestore rules: permission-denied
     if (typeof error === 'object' && error !== null && 'code' in error) {
-      // @ts-expect-error FirebaseError shape
-      const code = error.code as string;
+      const code = (error as { code?: string }).code;
       if (code === 'permission-denied') {
         console.warn(
           'Firestore permission denied when fetching sessions. Returning empty list instead of failing.'

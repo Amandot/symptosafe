@@ -1,0 +1,119 @@
+'use client';
+
+import { AlertCircle, AlertTriangle, Info, CheckCircle } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/useTranslation';
+import type { AIAnalysisResult } from '@/types';
+
+interface RiskStratificationProps {
+  analysis: AIAnalysisResult;
+}
+
+export default function RiskStratification({ analysis }: RiskStratificationProps) {
+  const { t } = useTranslation();
+
+  const riskConfig = {
+    critical: {
+      icon: AlertCircle,
+      color: 'text-red-600',
+      bg: 'bg-red-50',
+      border: 'border-red-200',
+      message: t('seekImmediateCare'),
+    },
+    high: {
+      icon: AlertTriangle,
+      color: 'text-orange-600',
+      bg: 'bg-orange-50',
+      border: 'border-orange-200',
+      message: t('consultDoctor'),
+    },
+    medium: {
+      icon: Info,
+      color: 'text-yellow-600',
+      bg: 'bg-yellow-50',
+      border: 'border-yellow-200',
+      message: t('monitorSymptoms'),
+    },
+    low: {
+      icon: CheckCircle,
+      color: 'text-green-600',
+      bg: 'bg-green-50',
+      border: 'border-green-200',
+      message: t('monitorSymptoms'),
+    },
+  };
+
+  const config = riskConfig[analysis.riskLevel];
+  const Icon = config.icon;
+
+  return (
+    <div className={`${config.bg} ${config.border} border-2 rounded-3xl p-6 shadow-xl`}>
+      <div className="flex items-center gap-4 mb-5">
+        <div className={`${config.bg} p-3 rounded-2xl shadow-md`}>
+          <Icon size={36} className={config.color} />
+        </div>
+        <div>
+          <h3 className="text-xl font-bold text-gray-800">
+            {t('riskLevel')}: <span className={config.color}>{t(analysis.riskLevel).toUpperCase()}</span>
+          </h3>
+          <p className={`text-sm ${config.color} font-bold mt-1`}>
+            {config.message}
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-3 bg-white/50 rounded-2xl p-4">
+        <p className="text-sm text-gray-800 font-bold">Recommendation:</p>
+        <ul className="text-sm text-gray-700 space-y-2">
+          {analysis.riskLevel === 'critical' && (
+            <>
+              <li className="flex items-start gap-2">
+                <span className="text-red-600 font-bold">•</span>
+                <span className="font-medium">Seek emergency medical care immediately</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-600 font-bold">•</span>
+                <span className="font-medium">Do not delay treatment</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-600 font-bold">•</span>
+                <span className="font-medium">Call emergency services if needed</span>
+              </li>
+            </>
+          )}
+          {analysis.riskLevel === 'high' && (
+            <>
+              <li className="flex items-start gap-2">
+                <span className="text-orange-600 font-bold">•</span>
+                <span className="font-medium">Schedule a doctor appointment within 24-48 hours</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-orange-600 font-bold">•</span>
+                <span className="font-medium">Monitor symptoms closely</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-orange-600 font-bold">•</span>
+                <span className="font-medium">Seek immediate care if symptoms worsen</span>
+              </li>
+            </>
+          )}
+          {(analysis.riskLevel === 'medium' || analysis.riskLevel === 'low') && (
+            <>
+              <li className="flex items-start gap-2">
+                <span className={`${config.color} font-bold`}>•</span>
+                <span className="font-medium">Monitor your symptoms</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className={`${config.color} font-bold`}>•</span>
+                <span className="font-medium">Consult a doctor if symptoms persist or worsen</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className={`${config.color} font-bold`}>•</span>
+                <span className="font-medium">Maintain good self-care practices</span>
+              </li>
+            </>
+          )}
+        </ul>
+      </div>
+    </div>
+  );
+}

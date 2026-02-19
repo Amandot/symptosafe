@@ -2,14 +2,16 @@
 
 import { useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 export default function FailureSimulationPanel() {
   const [showPanel, setShowPanel] = useState(false);
+  const { t } = useTranslation();
 
   const testScenarios = [
-    { label: 'Test: Headache & Fever', input: 'I have headache and fever' },
-    { label: 'Test: Chest Pain (Emergency)', input: 'Severe chest pain and breathing problem' },
-    { label: 'Test: Vague Symptoms', input: "I don't feel well" },
+    { label: t('testHeadacheFever'), input: t('testHeadacheFeverInput') },
+    { label: t('testChestPainEmergency'), input: t('testChestPainEmergencyInput') },
+    { label: t('testVagueSymptoms'), input: t('testVagueSymptomsInput') },
   ];
 
   if (!showPanel) {
@@ -18,7 +20,7 @@ export default function FailureSimulationPanel() {
         onClick={() => setShowPanel(true)}
         className="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-700 transition-colors shadow-lg"
       >
-        Test Scenarios
+        {t('testScenarios')}
       </button>
     );
   }
@@ -28,7 +30,7 @@ export default function FailureSimulationPanel() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <AlertTriangle size={20} className="text-orange-500" />
-          <h3 className="font-semibold text-gray-800">Test Scenarios</h3>
+          <h3 className="font-semibold text-gray-800">{t('testScenarios')}</h3>
         </div>
         <button
           onClick={() => setShowPanel(false)}
@@ -57,7 +59,7 @@ export default function FailureSimulationPanel() {
       </div>
 
       <p className="text-xs text-gray-500 mt-3">
-        Click to populate input field with test scenarios
+        {t('testScenariosHelp')}
       </p>
     </div>
   );

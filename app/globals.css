@@ -49,6 +49,11 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
+/* Safe area for mobile devices with notches */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* Animated gradient background */
 @keyframes gradient-shift {
   0% {

@@ -5,7 +5,7 @@ import type { Message } from '@/types';
 
 export async function POST(request: NextRequest) {
   try {
-    const { messages } = await request.json();
+    const { messages, image, language } = await request.json();
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Step 2: AI Analysis
+    // Step 2: AI Analysis with optional image
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const analysis = await analyzeSymptoms(messages as Message[], apiKey);
+    const analysis = await analyzeSymptoms(messages as Message[], apiKey, image, language);
 
     return NextResponse.json({
       emergency: emergencyResult,

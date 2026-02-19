@@ -3,36 +3,34 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
-
-const FAQ_ITEMS = [
-  {
-    id: 'when-to-use',
-    question: 'When should I use SymptoSafe?',
-    answer:
-      'Use SymptoSafe when you want to better understand non‑emergency symptoms before or after talking to a clinician. It is a triage and education tool, not a diagnosis.',
-  },
-  {
-    id: 'not-for',
-    question: 'What is SymptoSafe NOT for?',
-    answer:
-      'It is not for heart attack, stroke, trouble breathing, severe bleeding, or suicidal thoughts. In those situations you should contact emergency services immediately.',
-  },
-  {
-    id: 'how-ai',
-    question: 'How does the AI make suggestions?',
-    answer:
-      'The AI looks at your description, compares it to many known symptom patterns, and returns possible conditions and a risk level with confidence scores and follow‑up questions.',
-  },
-  {
-    id: 'doctor-role',
-    question: 'Do I still need to see a doctor?',
-    answer:
-      'Yes. Only a licensed clinician who can examine you can diagnose or treat medical conditions. SymptoSafe is designed to support—not replace—professional care.',
-  },
-];
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 export default function FaqPanel() {
   const [openId, setOpenId] = useState<string | null>(null);
+  const { t } = useTranslation();
+
+  const FAQ_ITEMS = [
+    {
+      id: 'when-to-use',
+      question: t('faqWhenToUseQ'),
+      answer: t('faqWhenToUseA'),
+    },
+    {
+      id: 'not-for',
+      question: t('faqNotForQ'),
+      answer: t('faqNotForA'),
+    },
+    {
+      id: 'how-ai',
+      question: t('faqHowAiQ'),
+      answer: t('faqHowAiA'),
+    },
+    {
+      id: 'doctor-role',
+      question: t('faqDoctorQ'),
+      answer: t('faqDoctorA'),
+    },
+  ];
 
   const toggle = (id: string) => {
     setOpenId((prev) => (prev === id ? null : id));
@@ -45,9 +43,9 @@ export default function FaqPanel() {
           <HelpCircle size={16} className="sm:w-[18px] sm:h-[18px] text-white" />
         </div>
         <div>
-          <h3 className="text-xs sm:text-sm font-bold text-gray-900">Using SymptoSafe safely</h3>
+          <h3 className="text-xs sm:text-sm font-bold text-gray-900">{t('faqTitle')}</h3>
           <p className="text-[10px] sm:text-[11px] text-gray-500 hidden xs:block">
-            Quick answers to the most important safety questions
+            {t('faqSubtitle')}
           </p>
         </div>
       </div>

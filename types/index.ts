@@ -3,6 +3,7 @@ export interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: Date;
+  imageUrl?: string;
 }
 
 export interface Condition {
@@ -17,6 +18,7 @@ export interface AIAnalysisResult {
   informationCompleteness: number;
   followUpQuestions: string[];
   riskLevel: 'critical' | 'high' | 'medium' | 'low';
+  recommendation?: string[];
 }
 
 export interface EmergencyResult {

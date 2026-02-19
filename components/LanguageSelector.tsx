@@ -3,14 +3,16 @@
 import { Globe } from 'lucide-react';
 import { useAppStore } from '@/lib/store/useAppStore';
 import type { Language } from '@/types';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 export default function LanguageSelector() {
   const { language, setLanguage } = useAppStore();
+  const { t } = useTranslation();
 
   const languages: { code: Language; name: string; flag: string }[] = [
-    { code: 'en', name: 'English', flag: '🇬🇧' },
-    { code: 'hi', name: 'हिंदी', flag: '🇮🇳' },
-    { code: 'mr', name: 'मराठी', flag: '🇮🇳' },
+    { code: 'en', name: t('english'), flag: '🇬🇧' },
+    { code: 'hi', name: t('hindi'), flag: '🇮🇳' },
+    { code: 'mr', name: t('marathi'), flag: '🇮🇳' },
   ];
 
   return (

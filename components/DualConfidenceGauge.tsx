@@ -36,7 +36,7 @@ export default function DualConfidenceGauge({
   return (
     <div className="bg-gradient-to-br from-indigo-50 to-purple-50 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-purple-200">
       <h3 className="text-base sm:text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-3 sm:mb-5">
-        Confidence Metrics
+        {t('confidenceMetrics')}
       </h3>
       
       <ResponsiveContainer width="100%" height={200} className="sm:h-[250px]">
@@ -84,7 +84,7 @@ export default function DualConfidenceGauge({
         <div className="mt-3 sm:mt-5 p-3 sm:p-4 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-xl sm:rounded-2xl">
           <p className="text-xs sm:text-sm text-red-800 font-bold flex items-center gap-2">
             <span className="text-base sm:text-xl">⚠️</span>
-            <span>Low confidence - Please consult a healthcare professional</span>
+            <span>{t('lowConfidenceConsult')}</span>
           </p>
         </div>
       )}

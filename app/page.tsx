@@ -20,6 +20,9 @@ import SessionDashboard from '@/components/SessionDashboard';
 import SessionTrends from '@/components/SessionTrends';
 import SymptomWizard from '@/components/SymptomWizard';
 import FaqPanel from '@/components/FaqPanel';
+import Navbar from '@/components/Navbar';
+import PredictiveDashboard from '@/components/PredictiveDashboard';
+import ProfilePanel from '@/components/ProfilePanel';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function Home() {
@@ -35,6 +38,7 @@ export default function Home() {
     emergency,
     language,
     resetSession,
+    activeTab,
   } = useAppStore();
 
   useEffect(() => {
@@ -51,8 +55,8 @@ export default function Home() {
         id: uuidv4(),
         userId: user.uid,
         messages,
-        analysis: analysis || undefined,
-        emergency: emergency || undefined,
+        ...(analysis && { analysis }),
+        ...(emergency && { emergency }),
         timestamp: new Date(),
         language,
       };
@@ -68,6 +72,70 @@ export default function Home() {
       resetSession();
     } catch (error) {
       console.error('Logout error:', error);
+    }
+  };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'checker':
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border border-purple-100"
+                style={{ height: '500px', minHeight: '400px' }}
+              >
+                <ChatInterface />
+              </motion.div>
+
+              {analysis && <ResultsPanel analysis={analysis} />}
+            </div>
+
+            <div className="space-y-3 sm:space-y-5">
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <SymptomWizard />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <TransparencyPanel />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <FaqPanel />
+              </motion.div>
+            </div>
+          </div>
+        );
+
+      case 'insights':
+        return <PredictiveDashboard />;
+
+      case 'hospitals':
+        return (
+          <div className="pb-24">
+            <HospitalFinder />
+          </div>
+        );
+
+      case 'profile':
+        return <ProfilePanel />;
+
+      default:
+        return null;
     }
   };
 
@@ -147,17 +215,15 @@ export default function Home() {
                   <div className="relative z-10 space-y-3 sm:space-y-4">
                     <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-indigo-50 px-3 sm:px-4 py-1 text-[10px] sm:text-xs font-medium text-indigo-700 border border-indigo-100">
                       <Sparkles size={12} className="sm:w-3.5 sm:h-3.5" />
-                      <span className="hidden xs:inline">Safety-first AI symptom dashboard</span>
-                      <span className="xs:hidden">AI Dashboard</span>
+                      <span className="hidden xs:inline">{t('modularHealthPlatform')}</span>
+                      <span className="xs:hidden">{t('healthPlatform')}</span>
                     </div>
                     <h2 className="text-xl sm:text-3xl lg:text-4xl font-black tracking-tight text-gray-900">
-                      Understand your health with{' '}
-                      <span className="gradient-text">transparent AI</span>
+                      {t('heroTitlePrefix')}{' '}
+                      <span className="gradient-text">{t('heroTitleHighlight')}</span>
                     </h2>
                     <p className="text-xs sm:text-sm lg:text-base text-gray-600 max-w-xl">
-                      SymptoSafe analyzes your symptoms with dual confidence scoring, risk
-                      stratification, and instant emergency detection — all wrapped in a
-                      transparent, safety-focused experience.
+                      {t('heroSubtitle')}
                     </p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6">
@@ -167,11 +233,10 @@ export default function Home() {
                       >
                         <div className="flex items-center gap-1.5 sm:gap-2 text-indigo-600 font-semibold text-xs sm:text-sm">
                           <Shield size={16} className="sm:w-[18px] sm:h-[18px]" />
-                          Safety Engine
+                          {t('featureVisionAiTitle')}
                         </div>
                         <p className="text-[10px] sm:text-xs text-gray-600">
-                          Detects life‑threatening emergencies before any AI analysis and
-                          pushes clear call‑to‑action guidance.
+                          {t('featureVisionAiBody')}
                         </p>
                       </motion.div>
 
@@ -181,11 +246,10 @@ export default function Home() {
                       >
                         <div className="flex items-center gap-1.5 sm:gap-2 text-purple-600 font-semibold text-xs sm:text-sm">
                           <HeartPulse size={16} className="sm:w-[18px] sm:h-[18px]" />
-                          Dual Confidence
+                          {t('featurePredictiveTitle')}
                         </div>
                         <p className="text-[10px] sm:text-xs text-gray-600">
-                          Visual gauges for diagnostic confidence and information
-                          completeness so users see how certain the AI really is.
+                          {t('featurePredictiveBody')}
                         </p>
                       </motion.div>
 
@@ -195,11 +259,10 @@ export default function Home() {
                       >
                         <div className="flex items-center gap-1.5 sm:gap-2 text-pink-600 font-semibold text-xs sm:text-sm">
                           <Activity size={16} className="sm:w-[18px] sm:h-[18px]" />
-                          Explainable Results
+                          {t('featureModularNavTitle')}
                         </div>
                         <p className="text-[10px] sm:text-xs text-gray-600">
-                          Clear reasoning, follow‑up questions, and risk‑based
-                          recommendations powered by GPT‑4.
+                          {t('featureModularNavBody')}
                         </p>
                       </motion.div>
                     </div>
@@ -211,11 +274,11 @@ export default function Home() {
                         onClick={() => setShowDashboard(false)}
                         className="w-full xs:w-auto px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs sm:text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
                       >
-                        Start symptom analysis
+                        {t('startUsingSymptoSafe')}
                       </motion.button>
 
                       <span className="text-[10px] sm:text-xs text-gray-500">
-                        No login required · This is not a medical diagnosis
+                        {t('noLoginRequiredNotDiagnosis')}
                       </span>
                     </div>
                   </div>
@@ -252,68 +315,13 @@ export default function Home() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4, ease: 'easeOut' }}
             >
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-                <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border border-purple-100"
-                    style={{ height: '500px', minHeight: '400px' }}
-                  >
-                    <ChatInterface />
-                  </motion.div>
-
-                  {analysis && <ResultsPanel analysis={analysis} />}
-                </div>
-
-                <div className="space-y-3 sm:space-y-5">
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 }}
-                  >
-                    <CaregiverModePanel />
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.15 }}
-                  >
-                    <SymptomWizard />
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <HospitalFinder />
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <TransparencyPanel />
-                  </motion.div>
-
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.35 }}
-                  >
-                    <FaqPanel />
-                  </motion.div>
-                </div>
-              </div>
+              {renderTabContent()}
 
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="mt-4 sm:mt-8 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-lg"
+                className="mt-4 sm:mt-8 mb-24 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl sm:rounded-2xl p-3 sm:p-5 shadow-lg"
               >
                 <p className="text-center text-xs sm:text-sm text-amber-900 font-medium flex items-center justify-center gap-2">
                   <span className="text-lg sm:text-2xl">⚠️</span>
@@ -325,6 +333,7 @@ export default function Home() {
         </AnimatePresence>
       </main>
 
+      {!showDashboard && <Navbar />}
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
       <FailureSimulationPanel />
     </div>

@@ -4,34 +4,36 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Stethoscope, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useAppStore } from '@/lib/store/useAppStore';
-
-const steps = [
-  {
-    id: 'location',
-    label: 'Where is the main problem in your body?',
-    placeholder: 'e.g. chest, head, stomach, throat, whole body',
-  },
-  {
-    id: 'duration',
-    label: 'How long has this been going on?',
-    placeholder: 'e.g. started today, 3 days, 2 weeks, several months',
-  },
-  {
-    id: 'severity',
-    label: 'How severe is it on a scale of 1–10?',
-    placeholder: 'e.g. 3/10 mild, 6/10 moderate, 9/10 very severe',
-  },
-  {
-    id: 'context',
-    label: 'Anything that makes it better or worse?',
-    placeholder: 'e.g. worse when walking, better with rest, after eating, at night',
-  },
-];
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 export default function SymptomWizard() {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const { messages } = useAppStore();
+  const { t } = useTranslation();
+
+  const steps = [
+    {
+      id: 'location',
+      label: t('wizardLocationLabel'),
+      placeholder: t('wizardLocationPlaceholder'),
+    },
+    {
+      id: 'duration',
+      label: t('wizardDurationLabel'),
+      placeholder: t('wizardDurationPlaceholder'),
+    },
+    {
+      id: 'severity',
+      label: t('wizardSeverityLabel'),
+      placeholder: t('wizardSeverityPlaceholder'),
+    },
+    {
+      id: 'context',
+      label: t('wizardContextLabel'),
+      placeholder: t('wizardContextPlaceholder'),
+    },
+  ];
 
   const handleChange = (id: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
@@ -48,7 +50,7 @@ export default function SymptomWizard() {
       const input =
         summary ||
         (messages[0]?.content ??
-          'I want to describe my symptoms but I have not added details yet.');
+          t('wizardNoDetailsYet'));
 
       const nativeInput = document.querySelector(
         'input[type="text"]',
@@ -75,9 +77,9 @@ export default function SymptomWizard() {
             <Stethoscope size={16} className="sm:w-[18px] sm:h-[18px] text-white" />
           </div>
           <div>
-            <h3 className="text-xs sm:text-sm font-bold text-gray-900">Guided symptom wizard</h3>
+            <h3 className="text-xs sm:text-sm font-bold text-gray-900">{t('wizardTitle')}</h3>
             <p className="text-[10px] sm:text-[11px] text-gray-500 hidden xs:block">
-              Optional helper before you type or paste your symptoms
+              {t('wizardSubtitle')}
             </p>
           </div>
         </div>
@@ -114,14 +116,14 @@ export default function SymptomWizard() {
           className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] px-2.5 sm:px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <ChevronLeft size={12} />
-          Back
+          {t('back')}
         </button>
         <button
           type="button"
           onClick={goNext}
           className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] px-3 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-md hover:shadow-lg"
         >
-          {currentStep === steps.length - 1 ? 'Fill input & analyze' : 'Next question'}
+          {currentStep === steps.length - 1 ? t('fillInputAndAnalyze') : t('nextQuestion')}
           <ChevronRight size={12} />
         </button>
       </div>

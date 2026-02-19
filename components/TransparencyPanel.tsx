@@ -15,11 +15,11 @@ export default function TransparencyPanel() {
       title: t('howItWorks'),
       icon: Info,
       content: [
-        'Safety-first approach: Emergency keywords are detected instantly before AI analysis',
-        'AI-powered analysis using OpenAI GPT-4 to evaluate symptoms',
-        'Dual confidence scoring: Diagnostic confidence and information completeness',
-        'Risk stratification based on symptom severity',
-        'Follow-up questions to gather more information',
+        t('transparencyHow1'),
+        t('transparencyHow2'),
+        t('transparencyHow3'),
+        t('transparencyHow4'),
+        t('transparencyHow5'),
       ],
     },
     {
@@ -27,12 +27,12 @@ export default function TransparencyPanel() {
       title: t('limitations'),
       icon: AlertCircle,
       content: [
-        'This tool cannot replace professional medical diagnosis',
-        'AI may not detect rare or complex conditions',
-        'Accuracy depends on the quality and completeness of information provided',
-        'Cannot perform physical examinations or diagnostic tests',
-        'Should not be used for emergency situations - call emergency services',
-        'Confidence scores below 50% indicate high uncertainty',
+        t('transparencyLimit1'),
+        t('transparencyLimit2'),
+        t('transparencyLimit3'),
+        t('transparencyLimit4'),
+        t('transparencyLimit5'),
+        t('transparencyLimit6'),
       ],
     },
     {
@@ -40,12 +40,12 @@ export default function TransparencyPanel() {
       title: t('dataPrivacy'),
       icon: Shield,
       content: [
-        'Anonymous users: No data is stored permanently',
-        'Logged-in users: Symptom history saved securely in Firebase',
-        'Data is encrypted in transit and at rest',
-        'No personal health information is shared with third parties',
-        'You can delete your account and data at any time',
-        'OpenAI API processes symptoms but does not retain data',
+        t('transparencyPrivacy1'),
+        t('transparencyPrivacy2'),
+        t('transparencyPrivacy3'),
+        t('transparencyPrivacy4'),
+        t('transparencyPrivacy5'),
+        t('transparencyPrivacy6'),
       ],
     },
   ];
@@ -57,7 +57,7 @@ export default function TransparencyPanel() {
   return (
     <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-purple-100">
       <h3 className="text-base sm:text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-3 sm:mb-5">
-        Transparency & Safety
+        {t('transparencyAndSafety')}
       </h3>
 
       <div className="space-y-2 sm:space-y-3">

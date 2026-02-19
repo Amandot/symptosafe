@@ -62,54 +62,67 @@ export default function RiskStratification({ analysis }: RiskStratificationProps
       </div>
 
       <div className="space-y-2 sm:space-y-3 bg-white/50 rounded-xl sm:rounded-2xl p-3 sm:p-4">
-        <p className="text-xs sm:text-sm text-gray-800 font-bold">Recommendation:</p>
+        <p className="text-xs sm:text-sm text-gray-800 font-bold">{t('recommendation')}:</p>
         <ul className="text-xs sm:text-sm text-gray-700 space-y-1.5 sm:space-y-2">
-          {analysis.riskLevel === 'critical' && (
-            <>
-              <li className="flex items-start gap-1.5 sm:gap-2">
-                <span className="text-red-600 font-bold">•</span>
-                <span className="font-medium">Seek emergency medical care immediately</span>
-              </li>
-              <li className="flex items-start gap-1.5 sm:gap-2">
-                <span className="text-red-600 font-bold">•</span>
-                <span className="font-medium">Do not delay treatment</span>
-              </li>
-              <li className="flex items-start gap-1.5 sm:gap-2">
-                <span className="text-red-600 font-bold">•</span>
-                <span className="font-medium">Call emergency services if needed</span>
-              </li>
-            </>
-          )}
-          {analysis.riskLevel === 'high' && (
-            <>
-              <li className="flex items-start gap-1.5 sm:gap-2">
-                <span className="text-orange-600 font-bold">•</span>
-                <span className="font-medium">Schedule a doctor appointment within 24-48 hours</span>
-              </li>
-              <li className="flex items-start gap-1.5 sm:gap-2">
-                <span className="text-orange-600 font-bold">•</span>
-                <span className="font-medium">Monitor symptoms closely</span>
-              </li>
-              <li className="flex items-start gap-1.5 sm:gap-2">
-                <span className="text-orange-600 font-bold">•</span>
-                <span className="font-medium">Seek immediate care if symptoms worsen</span>
-              </li>
-            </>
-          )}
-          {(analysis.riskLevel === 'medium' || analysis.riskLevel === 'low') && (
-            <>
-              <li className="flex items-start gap-1.5 sm:gap-2">
+          {analysis.recommendation && analysis.recommendation.length > 0 ? (
+            // Use AI-generated recommendations if available
+            analysis.recommendation.map((rec, index) => (
+              <li key={index} className="flex items-start gap-1.5 sm:gap-2">
                 <span className={`${config.color} font-bold`}>•</span>
-                <span className="font-medium">Monitor your symptoms</span>
+                <span className="font-medium">{rec}</span>
               </li>
-              <li className="flex items-start gap-1.5 sm:gap-2">
-                <span className={`${config.color} font-bold`}>•</span>
-                <span className="font-medium">Consult a doctor if symptoms persist or worsen</span>
-              </li>
-              <li className="flex items-start gap-1.5 sm:gap-2">
-                <span className={`${config.color} font-bold`}>•</span>
-                <span className="font-medium">Maintain good self-care practices</span>
-              </li>
+            ))
+          ) : (
+            // Fallback to default recommendations based on risk level
+            <>
+              {analysis.riskLevel === 'critical' && (
+                <>
+                  <li className="flex items-start gap-1.5 sm:gap-2">
+                    <span className="text-red-600 font-bold">•</span>
+                    <span className="font-medium">{t('seekEmergencyCareImmediately')}</span>
+                  </li>
+                  <li className="flex items-start gap-1.5 sm:gap-2">
+                    <span className="text-red-600 font-bold">•</span>
+                    <span className="font-medium">{t('doNotDelayTreatment')}</span>
+                  </li>
+                  <li className="flex items-start gap-1.5 sm:gap-2">
+                    <span className="text-red-600 font-bold">•</span>
+                    <span className="font-medium">{t('callEmergencyIfNeeded')}</span>
+                  </li>
+                </>
+              )}
+              {analysis.riskLevel === 'high' && (
+                <>
+                  <li className="flex items-start gap-1.5 sm:gap-2">
+                    <span className="text-orange-600 font-bold">•</span>
+                    <span className="font-medium">{t('scheduleDoctor24to48')}</span>
+                  </li>
+                  <li className="flex items-start gap-1.5 sm:gap-2">
+                    <span className="text-orange-600 font-bold">•</span>
+                    <span className="font-medium">{t('monitorSymptomsClosely')}</span>
+                  </li>
+                  <li className="flex items-start gap-1.5 sm:gap-2">
+                    <span className="text-orange-600 font-bold">•</span>
+                    <span className="font-medium">{t('seekCareIfWorse')}</span>
+                  </li>
+                </>
+              )}
+              {(analysis.riskLevel === 'medium' || analysis.riskLevel === 'low') && (
+                <>
+                  <li className="flex items-start gap-1.5 sm:gap-2">
+                    <span className={`${config.color} font-bold`}>•</span>
+                    <span className="font-medium">{t('monitorYourSymptoms')}</span>
+                  </li>
+                  <li className="flex items-start gap-1.5 sm:gap-2">
+                    <span className={`${config.color} font-bold`}>•</span>
+                    <span className="font-medium">{t('consultIfPersistOrWorse')}</span>
+                  </li>
+                  <li className="flex items-start gap-1.5 sm:gap-2">
+                    <span className={`${config.color} font-bold`}>•</span>
+                    <span className="font-medium">{t('maintainSelfCare')}</span>
+                  </li>
+                </>
+              )}
             </>
           )}
         </ul>

@@ -30,7 +30,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       setUser(user);
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to sign in');
+      setError(err instanceof Error ? err.message : t('failedToSignIn'));
     } finally {
       setLoading(false);
     }
@@ -47,7 +47,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       setUser(user);
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Authentication failed');
+      setError(err instanceof Error ? err.message : t('authenticationFailed'));
     } finally {
       setLoading(false);
     }
@@ -70,7 +70,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <h2 className="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
             {isSignUp ? t('signUp') : t('signIn')}
           </h2>
-          <p className="text-sm text-gray-600 mt-2">Access your symptom history</p>
+          <p className="text-sm text-gray-600 mt-2">{t('accessYourHistory')}</p>
         </div>
 
         {error && (
@@ -112,7 +112,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             disabled={loading}
             className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white py-3.5 rounded-2xl transition-all disabled:opacity-50 font-bold shadow-lg hover:shadow-xl"
           >
-            {loading ? 'Processing...' : isSignUp ? t('signUp') : t('signIn')}
+            {loading ? t('processing') : isSignUp ? t('signUp') : t('signIn')}
           </button>
         </form>
 
@@ -121,7 +121,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <div className="w-full border-t-2 border-gray-200"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-3 bg-white text-gray-500 font-semibold">or continue with</span>
+            <span className="px-3 bg-white text-gray-500 font-semibold">{t('orContinueWith')}</span>
           </div>
         </div>
 
@@ -152,7 +152,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         </button>
 
         <p className="text-center text-sm text-gray-600 mt-6">
-          {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+          {isSignUp ? t('alreadyHaveAccount') : t('dontHaveAccount')}{' '}
           <button
             onClick={() => setIsSignUp(!isSignUp)}
             className="text-indigo-600 hover:text-purple-600 font-bold"

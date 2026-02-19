@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, User, Bot } from 'lucide-react';
+import { Send, Loader2, User, Bot, Image as ImageIcon, X } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { useAppStore } from '@/lib/store/useAppStore';
@@ -11,7 +11,10 @@ import type { Message } from '@/types';
 
 export default function ChatInterface() {
   const [input, setInput] = useState('');
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
   
   const {
@@ -21,30 +24,70 @@ export default function ChatInterface() {
     setEmergency,
     isLoading,
     setIsLoading,
+    language,
   } = useAppStore();
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert(t('selectImageFile'));
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert(t('imageSizeLimit'));
+      return;
+    }
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result as string;
+      setImagePreview(result);
+      setImageBase64(result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
+    setImageBase64(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if ((!input.trim() && !imageBase64) || isLoading) return;
 
     const userMessage: Message = {
       id: uuidv4(),
       role: 'user',
-      content: input.trim(),
+      content: input.trim() || t('pleaseAnalyzeThisImage'),
       timestamp: new Date(),
+      imageUrl: imageBase64 || undefined,
     };
 
     addMessage(userMessage);
     setInput('');
+    const currentImage = imageBase64;
+    removeImage();
     setIsLoading(true);
 
     try {
       const response = await axios.post('/api/analyze', {
         messages: [...messages, userMessage],
+        image: currentImage,
+        language,
       });
 
       const { emergency, analysis } = response.data;
@@ -55,11 +98,26 @@ export default function ChatInterface() {
 
       if (analysis) {
         setAnalysis(analysis);
+
+        const top = analysis.possibleConditions?.[0];
+        const conditionLine = top?.name
+          ? `${t('mostLikelyCondition')}: ${top.name}${
+              typeof top.probability === 'number' ? ` ${t('approxPercent', { percent: top.probability })}` : ''
+            }`
+          : `${t('mostLikelyCondition')}: ${t('notEnoughInfoYet')}`;
+
+        const advice =
+          Array.isArray(analysis.recommendation) && analysis.recommendation.length > 0
+            ? `\n\n${t('whatYouCanDoNow')}:\n${analysis.recommendation
+                .slice(0, 3)
+                .map((r: string) => `- ${r}`)
+                .join('\n')}`
+            : '';
         
         const assistantMessage: Message = {
           id: uuidv4(),
           role: 'assistant',
-          content: `I've analyzed your symptoms. Please review the detailed analysis below.`,
+          content: `${conditionLine}${advice}`,
           timestamp: new Date(),
         };
         addMessage(assistantMessage);
@@ -69,7 +127,7 @@ export default function ChatInterface() {
       const errorMessage: Message = {
         id: uuidv4(),
         role: 'assistant',
-        content: 'Sorry, I encountered an error analyzing your symptoms. Please try again.',
+        content: t('analysisErrorTryAgain'),
         timestamp: new Date(),
       };
       addMessage(errorMessage);
@@ -83,9 +141,9 @@ export default function ChatInterface() {
       <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-3 sm:px-6 py-3 sm:py-4 border-b border-purple-200">
         <h2 className="text-sm sm:text-lg font-bold text-white flex items-center gap-1.5 sm:gap-2">
           <Bot size={18} className="sm:w-[22px] sm:h-[22px]" />
-          AI Symptom Analyzer
+          {t('aiSymptomAnalyzer')}
         </h2>
-        <p className="text-[10px] sm:text-xs text-purple-100 mt-0.5 sm:mt-1 hidden xs:block">Describe your symptoms in detail for accurate analysis</p>
+        <p className="text-[10px] sm:text-xs text-purple-100 mt-0.5 sm:mt-1 hidden xs:block">{t('chatSubtitle')}</p>
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4">
@@ -94,9 +152,9 @@ export default function ChatInterface() {
             <div className="bg-gradient-to-br from-indigo-100 to-purple-100 p-4 sm:p-6 rounded-full mb-3 sm:mb-4">
               <Bot size={36} className="sm:w-12 sm:h-12 text-indigo-600" />
             </div>
-            <h3 className="text-base sm:text-xl font-bold text-gray-800 mb-1.5 sm:mb-2">Welcome to SymptoSafe</h3>
+            <h3 className="text-base sm:text-xl font-bold text-gray-800 mb-1.5 sm:mb-2">{t('welcomeTitle')}</h3>
             <p className="text-gray-600 text-xs sm:text-sm max-w-md">
-              Start by describing your symptoms. I'll analyze them and provide insights with confidence scores.
+              {t('welcomeBody')}
             </p>
           </div>
         )}
@@ -126,6 +184,13 @@ export default function ChatInterface() {
                     : 'bg-white text-gray-800 border border-purple-100'
                 }`}
               >
+                {message.imageUrl && (
+                  <img
+                    src={message.imageUrl}
+                    alt={t('symptomVisual')}
+                    className="rounded-lg mb-2 max-w-full h-auto max-h-48 object-cover"
+                  />
+                )}
                 <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                 <span className={`text-[10px] sm:text-xs mt-1.5 sm:mt-2 block ${message.role === 'user' ? 'text-purple-100' : 'text-gray-400'}`}>
                   {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -163,7 +228,38 @@ export default function ChatInterface() {
       </div>
 
       <form onSubmit={handleSubmit} className="p-3 sm:p-5 bg-white/80 backdrop-blur-md border-t border-purple-200">
+        {imagePreview && (
+          <div className="mb-3 relative inline-block">
+            <img
+              src={imagePreview}
+              alt={t('preview')}
+              className="h-20 w-20 object-cover rounded-lg border-2 border-purple-300"
+            />
+            <button
+              type="button"
+              onClick={removeImage}
+              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
         <div className="flex gap-2 sm:gap-3">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageSelect}
+            accept="image/*"
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-3 py-2.5 sm:px-4 sm:py-3.5 rounded-xl sm:rounded-2xl transition-all duration-200 flex items-center gap-1.5 shadow-lg hover:shadow-xl"
+            disabled={isLoading}
+          >
+            <ImageIcon size={18} className="sm:w-5 sm:h-5" />
+          </button>
           <input
             type="text"
             value={input}
@@ -174,7 +270,7 @@ export default function ChatInterface() {
           />
           <button
             type="submit"
-            disabled={isLoading || !input.trim()}
+            disabled={isLoading || (!input.trim() && !imageBase64)}
             className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-4 py-2.5 sm:px-7 sm:py-3.5 rounded-xl sm:rounded-2xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 sm:gap-2 shadow-lg hover:shadow-xl font-medium"
           >
             <Send size={18} className="sm:w-5 sm:h-5" />

@@ -13,6 +13,7 @@ interface ResultsPanelProps {
 
 export default function ResultsPanel({ analysis }: ResultsPanelProps) {
   const { t } = useTranslation();
+  const primaryCondition = analysis.possibleConditions[0];
 
   return (
     <motion.div
@@ -20,6 +21,24 @@ export default function ResultsPanel({ analysis }: ResultsPanelProps) {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-3 sm:space-y-5"
     >
+      {primaryCondition && (
+        <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xl border border-indigo-100">
+          <p className="text-xs sm:text-sm text-gray-700">
+            <span className="font-semibold text-gray-900">
+              {t('basedOnSymptomsYouMayBeExperiencing')}
+            </span>{' '}
+            <span className="font-semibold text-indigo-700">
+              {primaryCondition.name}
+            </span>
+            {primaryCondition.probability != null && (
+              <span className="text-gray-600">
+                {t('approxLikelihood', { percent: primaryCondition.probability })}
+              </span>
+            )}
+          </p>
+        </div>
+      )}
+
       <DualConfidenceGauge
         diagnosticConfidence={analysis.confidenceScore}
         informationCompleteness={analysis.informationCompleteness}

@@ -6,24 +6,71 @@ import {
   orderBy,
   getDocs,
   limit,
-  type DocumentData
+  type DocumentData,
 } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './config';
 import type { SymptomSession } from '@/types';
 
 const SESSIONS_COLLECTION = 'symptom_sessions';
 
+function deepRemoveUndefined<T>(value: T): T {
+  // Firestore rejects `undefined` anywhere in the object graph (even nested).
+  if (value === undefined || value === null) return value;
+
+  // Keep special values as-is
+  if (value instanceof Date) return value;
+
+  if (Array.isArray(value)) {
+    return value
+      .filter((v) => v !== undefined)
+      .map((v) => deepRemoveUndefined(v)) as T;
+  }
+
+  if (typeof value === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      if (v === undefined) continue;
+      out[k] = deepRemoveUndefined(v);
+    }
+    return out as T;
+  }
+
+  return value;
+}
+
 export async function saveSession(session: SymptomSession): Promise<string> {
   if (!db || !isFirebaseConfigured) {
-    console.warn('Firebase is not configured. Session will not be saved.');
+    console.warn(
+      'Firebase is not configured (missing NEXT_PUBLIC_FIREBASE_* env vars). Session will not be saved.'
+    );
     return '';
   }
-  
+
   try {
-    const docRef = await addDoc(collection(db, SESSIONS_COLLECTION), {
-      ...session,
-      timestamp: new Date(session.timestamp)
+    if (!session.userId) {
+      console.warn('No userId provided. Session will not be saved. Make sure the user is signed in.');
+      return '';
+    }
+
+    const baseSession = {
+      ...(session.id ? { id: session.id } : {}),
+      userId: session.userId,
+      messages: session.messages,
+      timestamp: session.timestamp instanceof Date ? session.timestamp : new Date(session.timestamp),
+      language: session.language,
+      ...(session.analysis ? { analysis: session.analysis } : {}),
+      ...(session.emergency ? { emergency: session.emergency } : {}),
+    };
+
+    const cleanSession = deepRemoveUndefined(baseSession);
+    const docRef = await addDoc(collection(db, SESSIONS_COLLECTION), cleanSession);
+
+    console.log('Session saved to Firestore:', {
+      collection: SESSIONS_COLLECTION,
+      docId: docRef.id,
+      userId: session.userId,
     });
+
     return docRef.id;
   } catch (error: unknown) {
     if (typeof error === 'object' && error !== null && 'code' in error) {
@@ -32,6 +79,10 @@ export async function saveSession(session: SymptomSession): Promise<string> {
         console.warn(
           'Firestore permission denied when saving session. Skipping persistence but keeping UI flow.'
         );
+        return '';
+      }
+      if (code === 'invalid-argument') {
+        console.warn('Firestore rejected session payload (invalid-argument). Skipping persistence.', error);
         return '';
       }
     }
@@ -46,7 +97,7 @@ export async function getUserSessions(userId: string, maxResults = 10): Promise<
     console.warn('Firebase is not configured. Cannot fetch sessions.');
     return [];
   }
-  
+
   try {
     const q = query(
       collection(db, SESSIONS_COLLECTION),
@@ -67,7 +118,7 @@ export async function getUserSessions(userId: string, maxResults = 10): Promise<
         analysis: data.analysis,
         emergency: data.emergency,
         timestamp: data.timestamp.toDate(),
-        language: data.language
+        language: data.language,
       });
     });
 
@@ -88,3 +139,5 @@ export async function getUserSessions(userId: string, maxResults = 10): Promise<
     throw new Error('Failed to fetch sessions');
   }
 }
+
+

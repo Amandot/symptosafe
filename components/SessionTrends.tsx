@@ -7,9 +7,11 @@ import { Activity, TrendingUp } from 'lucide-react';
 import type { SymptomSession } from '@/types';
 import { useAppStore } from '@/lib/store/useAppStore';
 import { getUserSessions } from '@/lib/firebase/firestore-service';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 export default function SessionTrends() {
   const { user } = useAppStore();
+  const { t } = useTranslation();
   const [sessions, setSessions] = useState<SymptomSession[]>([]);
 
   useEffect(() => {
@@ -22,7 +24,7 @@ export default function SessionTrends() {
   if (!user) {
     return (
       <div className="bg-white/90 backdrop-blur-md rounded-3xl p-5 shadow-xl border border-purple-100 text-xs text-gray-600">
-        Create an account and sign in to see your personal risk trends over time.
+        {t('signInToSeeTrends')}
       </div>
     );
   }
@@ -30,8 +32,7 @@ export default function SessionTrends() {
   if (sessions.length === 0) {
     return (
       <div className="bg-white/90 backdrop-blur-md rounded-3xl p-5 shadow-xl border border-purple-100 text-xs text-gray-600">
-        Complete a few analyses and your risk distribution and confidence trend will
-        appear here.
+        {t('completeAnalysesToSeeTrends')}
       </div>
     );
   }
@@ -74,22 +75,20 @@ export default function SessionTrends() {
             <TrendingUp size={18} className="text-white" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-900">Risk & confidence trends</h3>
+            <h3 className="text-sm font-bold text-gray-900">{t('riskAndConfidenceTrends')}</h3>
             <p className="text-[11px] text-gray-500">
-              Aggregate view from your recent analyses
+              {t('aggregateViewSubtitle')}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-1 text-[11px] text-gray-500">
           <Activity size={12} />
-          <span>{sessions.length} sessions</span>
+          <span>{t('sessionsCount', { count: sessions.length })}</span>
         </div>
       </div>
 
       <div className="h-32">
-        <p className="text-[11px] text-gray-600 mb-1 font-semibold">
-          Distribution of risk levels
-        </p>
+        <p className="text-[11px] text-gray-600 mb-1 font-semibold">{t('riskDistribution')}</p>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={riskData}>
             <XAxis
@@ -100,7 +99,7 @@ export default function SessionTrends() {
             <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
             <Tooltip
               contentStyle={{ fontSize: 11 }}
-              labelFormatter={(v) => `Risk: ${v}`}
+              labelFormatter={(v) => `${t('riskLabel')}: ${v}`}
             />
             <Bar dataKey="count" fill="#6366f1" radius={[8, 8, 0, 0]} />
           </BarChart>
@@ -108,9 +107,7 @@ export default function SessionTrends() {
       </div>
 
       <div className="h-32">
-        <p className="text-[11px] text-gray-600 mb-1 font-semibold">
-          Confidence over recent sessions
-        </p>
+        <p className="text-[11px] text-gray-600 mb-1 font-semibold">{t('confidenceOverSessions')}</p>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={confidencePoints}>
             <XAxis dataKey="index" tick={{ fontSize: 10 }} />

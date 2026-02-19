@@ -1,8 +1,10 @@
 'use client';
 
 import { MapPin } from 'lucide-react';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 export default function HospitalFinder() {
+  const { t } = useTranslation();
   const handleFindHospital = () => {
     window.open('https://www.google.com/maps/search/hospital+near+me', '_blank');
   };
@@ -15,7 +17,7 @@ export default function HospitalFinder() {
       <div className="bg-white/20 p-1.5 sm:p-2 rounded-lg sm:rounded-xl group-hover:scale-110 transition-transform">
         <MapPin size={20} className="sm:w-[22px] sm:h-[22px]" />
       </div>
-      <span>Find Nearest Hospital</span>
+      <span>{t('findHospital')}</span>
     </button>
   );
 }

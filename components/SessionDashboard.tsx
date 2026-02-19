@@ -6,6 +6,7 @@ import { CalendarClock, Activity, AlertTriangle, History } from 'lucide-react';
 import type { SymptomSession } from '@/types';
 import { useAppStore } from '@/lib/store/useAppStore';
 import { getUserSessions } from '@/lib/firebase/firestore-service';
+import { useTranslation } from '@/lib/i18n/useTranslation';
 
 interface SessionDashboardProps {
   onSelectSession?: (session: SymptomSession) => void;
@@ -13,6 +14,7 @@ interface SessionDashboardProps {
 
 export default function SessionDashboard({ onSelectSession }: SessionDashboardProps) {
   const { user } = useAppStore();
+  const { t } = useTranslation();
   const [sessions, setSessions] = useState<SymptomSession[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -68,14 +70,14 @@ export default function SessionDashboard({ onSelectSession }: SessionDashboardPr
             <History size={16} className="sm:w-[18px] sm:h-[18px] text-white" />
           </div>
           <div>
-            <h3 className="text-xs sm:text-sm font-bold text-gray-900">Recent sessions</h3>
+            <h3 className="text-xs sm:text-sm font-bold text-gray-900">{t('recentSessions')}</h3>
             <p className="text-[10px] sm:text-[11px] text-gray-500 hidden xs:block">
-              Overview of your last symptom checks
+              {t('recentSessionsSubtitle')}
             </p>
           </div>
         </div>
         {loading && (
-          <span className="text-[10px] sm:text-[11px] text-indigo-600 font-medium">Loading…</span>
+          <span className="text-[10px] sm:text-[11px] text-indigo-600 font-medium">{t('loading')}</span>
         )}
       </div>
 
@@ -83,10 +85,9 @@ export default function SessionDashboard({ onSelectSession }: SessionDashboardPr
         <div className="text-[11px] sm:text-xs text-gray-600 bg-purple-50 border border-dashed border-purple-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-start gap-2 sm:gap-3">
           <AlertTriangle size={14} className="text-purple-500 mt-0.5 flex-shrink-0" />
           <div>
-            <p className="font-semibold text-gray-800 mb-1">Sign in to see history</p>
+            <p className="font-semibold text-gray-800 mb-1">{t('signInToSeeHistory')}</p>
             <p>
-              Session history and trends are available when you create an account and use
-              SymptoSafe while logged in.
+              {t('historyAvailableWhenLoggedIn')}
             </p>
           </div>
         </div>
@@ -94,15 +95,14 @@ export default function SessionDashboard({ onSelectSession }: SessionDashboardPr
 
       {user && sessions.length === 0 && !loading && (
         <div className="text-[11px] sm:text-xs text-gray-600 bg-purple-50 border border-purple-100 rounded-xl sm:rounded-2xl p-3 sm:p-4">
-          Your recent symptom sessions will appear here after you complete a few
-          analyses.
+          {t('recentSessionsEmpty')}
         </div>
       )}
 
       {user && sessions.length > 0 && (
         <div className="mt-2 space-y-1.5 sm:space-y-2 overflow-y-auto scrollbar-thin pr-1">
           {sessions.map((session) => {
-            const firstMessage = session.messages[0]?.content ?? 'Symptom description';
+            const firstMessage = session.messages[0]?.content ?? t('symptomDescription');
             const risk = session.analysis?.riskLevel;
             const ts = new Date(session.timestamp);
             return (

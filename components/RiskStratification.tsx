@@ -46,35 +46,35 @@ export default function RiskStratification({ analysis }: RiskStratificationProps
   const Icon = config.icon;
 
   return (
-    <div className={`${config.bg} ${config.border} border-2 rounded-3xl p-6 shadow-xl`}>
-      <div className="flex items-center gap-4 mb-5">
-        <div className={`${config.bg} p-3 rounded-2xl shadow-md`}>
-          <Icon size={36} className={config.color} />
+    <div className={`${config.bg} ${config.border} border-2 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl`}>
+      <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-5">
+        <div className={`${config.bg} p-2 sm:p-3 rounded-xl sm:rounded-2xl shadow-md`}>
+          <Icon size={28} className={`sm:w-9 sm:h-9 ${config.color}`} />
         </div>
         <div>
-          <h3 className="text-xl font-bold text-gray-800">
+          <h3 className="text-base sm:text-xl font-bold text-gray-800">
             {t('riskLevel')}: <span className={config.color}>{t(analysis.riskLevel).toUpperCase()}</span>
           </h3>
-          <p className={`text-sm ${config.color} font-bold mt-1`}>
+          <p className={`text-xs sm:text-sm ${config.color} font-bold mt-0.5 sm:mt-1`}>
             {config.message}
           </p>
         </div>
       </div>
 
-      <div className="space-y-3 bg-white/50 rounded-2xl p-4">
-        <p className="text-sm text-gray-800 font-bold">Recommendation:</p>
-        <ul className="text-sm text-gray-700 space-y-2">
+      <div className="space-y-2 sm:space-y-3 bg-white/50 rounded-xl sm:rounded-2xl p-3 sm:p-4">
+        <p className="text-xs sm:text-sm text-gray-800 font-bold">Recommendation:</p>
+        <ul className="text-xs sm:text-sm text-gray-700 space-y-1.5 sm:space-y-2">
           {analysis.riskLevel === 'critical' && (
             <>
-              <li className="flex items-start gap-2">
+              <li className="flex items-start gap-1.5 sm:gap-2">
                 <span className="text-red-600 font-bold">•</span>
                 <span className="font-medium">Seek emergency medical care immediately</span>
               </li>
-              <li className="flex items-start gap-2">
+              <li className="flex items-start gap-1.5 sm:gap-2">
                 <span className="text-red-600 font-bold">•</span>
                 <span className="font-medium">Do not delay treatment</span>
               </li>
-              <li className="flex items-start gap-2">
+              <li className="flex items-start gap-1.5 sm:gap-2">
                 <span className="text-red-600 font-bold">•</span>
                 <span className="font-medium">Call emergency services if needed</span>
               </li>
@@ -82,15 +82,15 @@ export default function RiskStratification({ analysis }: RiskStratificationProps
           )}
           {analysis.riskLevel === 'high' && (
             <>
-              <li className="flex items-start gap-2">
+              <li className="flex items-start gap-1.5 sm:gap-2">
                 <span className="text-orange-600 font-bold">•</span>
                 <span className="font-medium">Schedule a doctor appointment within 24-48 hours</span>
               </li>
-              <li className="flex items-start gap-2">
+              <li className="flex items-start gap-1.5 sm:gap-2">
                 <span className="text-orange-600 font-bold">•</span>
                 <span className="font-medium">Monitor symptoms closely</span>
               </li>
-              <li className="flex items-start gap-2">
+              <li className="flex items-start gap-1.5 sm:gap-2">
                 <span className="text-orange-600 font-bold">•</span>
                 <span className="font-medium">Seek immediate care if symptoms worsen</span>
               </li>
@@ -98,15 +98,15 @@ export default function RiskStratification({ analysis }: RiskStratificationProps
           )}
           {(analysis.riskLevel === 'medium' || analysis.riskLevel === 'low') && (
             <>
-              <li className="flex items-start gap-2">
+              <li className="flex items-start gap-1.5 sm:gap-2">
                 <span className={`${config.color} font-bold`}>•</span>
                 <span className="font-medium">Monitor your symptoms</span>
               </li>
-              <li className="flex items-start gap-2">
+              <li className="flex items-start gap-1.5 sm:gap-2">
                 <span className={`${config.color} font-bold`}>•</span>
                 <span className="font-medium">Consult a doctor if symptoms persist or worsen</span>
               </li>
-              <li className="flex items-start gap-2">
+              <li className="flex items-start gap-1.5 sm:gap-2">
                 <span className={`${config.color} font-bold`}>•</span>
                 <span className="font-medium">Maintain good self-care practices</span>
               </li>

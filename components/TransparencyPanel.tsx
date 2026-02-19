@@ -55,32 +55,32 @@ export default function TransparencyPanel() {
   };
 
   return (
-    <div className="bg-white/90 backdrop-blur-md rounded-3xl p-6 shadow-xl border border-purple-100">
-      <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-5">
+    <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl border border-purple-100">
+      <h3 className="text-base sm:text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-3 sm:mb-5">
         Transparency & Safety
       </h3>
 
-      <div className="space-y-3">
+      <div className="space-y-2 sm:space-y-3">
         {sections.map((section) => {
           const Icon = section.icon;
           const isExpanded = expandedSection === section.id;
 
           return (
-            <div key={section.id} className="border-2 border-purple-100 rounded-2xl overflow-hidden bg-gradient-to-r from-purple-50/50 to-transparent">
+            <div key={section.id} className="border-2 border-purple-100 rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-r from-purple-50/50 to-transparent">
               <button
                 onClick={() => toggleSection(section.id)}
-                className="w-full flex items-center justify-between p-4 hover:bg-purple-50 transition-all"
+                className="w-full flex items-center justify-between p-3 sm:p-4 hover:bg-purple-50 transition-all"
               >
-                <div className="flex items-center gap-3">
-                  <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-xl">
-                    <Icon size={18} className="text-white" />
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-1.5 sm:p-2 rounded-lg sm:rounded-xl">
+                    <Icon size={16} className="sm:w-[18px] sm:h-[18px] text-white" />
                   </div>
-                  <span className="font-bold text-gray-800">{section.title}</span>
+                  <span className="font-bold text-gray-800 text-sm sm:text-base">{section.title}</span>
                 </div>
                 {isExpanded ? (
-                  <ChevronUp size={20} className="text-indigo-600" />
+                  <ChevronUp size={18} className="sm:w-5 sm:h-5 text-indigo-600" />
                 ) : (
-                  <ChevronDown size={20} className="text-indigo-600" />
+                  <ChevronDown size={18} className="sm:w-5 sm:h-5 text-indigo-600" />
                 )}
               </button>
 
@@ -92,17 +92,17 @@ export default function TransparencyPanel() {
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <div className="px-5 pb-5 pt-2 bg-gradient-to-r from-purple-50 to-indigo-50">
-                      <ul className="space-y-2.5">
+                    <div className="px-3 sm:px-5 pb-3 sm:pb-5 pt-1 sm:pt-2 bg-gradient-to-r from-purple-50 to-indigo-50">
+                      <ul className="space-y-2 sm:space-y-2.5">
                         {section.content.map((item, index) => (
                           <motion.li 
                             key={index} 
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.05 }}
-                            className="flex items-start gap-3 text-sm text-gray-700 p-2 bg-white/50 rounded-lg"
+                            className="flex items-start gap-2 sm:gap-3 text-xs sm:text-sm text-gray-700 p-2 bg-white/50 rounded-lg"
                           >
-                            <span className="text-indigo-600 font-bold text-base">•</span>
+                            <span className="text-indigo-600 font-bold text-sm sm:text-base">•</span>
                             <span className="leading-relaxed">{item}</span>
                           </motion.li>
                         ))}

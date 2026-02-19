@@ -68,21 +68,21 @@ export default function SymptomWizard() {
   const step = steps[currentStep];
 
   return (
-    <div className="bg-white/90 backdrop-blur-md rounded-3xl p-5 shadow-xl border border-purple-100 space-y-4">
+    <div className="bg-white/90 backdrop-blur-md rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-xl border border-purple-100 space-y-3 sm:space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-xl">
-            <Stethoscope size={18} className="text-white" />
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-1.5 sm:p-2 rounded-lg sm:rounded-xl">
+            <Stethoscope size={16} className="sm:w-[18px] sm:h-[18px] text-white" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-900">Guided symptom wizard</h3>
-            <p className="text-[11px] text-gray-500">
+            <h3 className="text-xs sm:text-sm font-bold text-gray-900">Guided symptom wizard</h3>
+            <p className="text-[10px] sm:text-[11px] text-gray-500 hidden xs:block">
               Optional helper before you type or paste your symptoms
             </p>
           </div>
         </div>
-        <span className="text-[11px] text-gray-500 font-medium">
-          Step {currentStep + 1} / {steps.length}
+        <span className="text-[10px] sm:text-[11px] text-gray-500 font-medium">
+          {currentStep + 1}/{steps.length}
         </span>
       </div>
 
@@ -93,25 +93,25 @@ export default function SymptomWizard() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
           transition={{ duration: 0.25 }}
-          className="space-y-2"
+          className="space-y-1.5 sm:space-y-2"
         >
-          <p className="text-xs font-semibold text-gray-800">{step.label}</p>
+          <p className="text-[11px] sm:text-xs font-semibold text-gray-800">{step.label}</p>
           <textarea
             rows={3}
             value={answers[step.id] || ''}
             onChange={(e) => handleChange(step.id, e.target.value)}
             placeholder={step.placeholder}
-            className="w-full rounded-2xl border-2 border-purple-200 bg-white/80 px-3 py-2 text-xs text-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none shadow-sm"
+            className="w-full rounded-xl sm:rounded-2xl border-2 border-purple-200 bg-white/80 px-2.5 sm:px-3 py-2 text-[11px] sm:text-xs text-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none shadow-sm"
           />
         </motion.div>
       </AnimatePresence>
 
-      <div className="flex items-center justify-between pt-2">
+      <div className="flex items-center justify-between pt-1 sm:pt-2">
         <button
           type="button"
           onClick={goBack}
           disabled={currentStep === 0}
-          className="inline-flex items-center gap-1 text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] px-2.5 sm:px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <ChevronLeft size={12} />
           Back
@@ -119,7 +119,7 @@ export default function SymptomWizard() {
         <button
           type="button"
           onClick={goNext}
-          className="inline-flex items-center gap-1 text-[11px] px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-md hover:shadow-lg"
+          className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] px-3 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-md hover:shadow-lg"
         >
           {currentStep === steps.length - 1 ? 'Fill input & analyze' : 'Next question'}
           <ChevronRight size={12} />

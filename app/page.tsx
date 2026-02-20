@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, LogOut, LogIn, Shield, Sparkles, HeartPulse } from 'lucide-react';
+import Image from 'next/image';
 import { useAppStore } from '@/lib/store/useAppStore';
 import { onAuthChange, logout } from '@/lib/firebase/auth-service';
 import { saveSession } from '@/lib/firebase/firestore-service';
@@ -146,13 +147,19 @@ export default function Home() {
       <header className="bg-white/90 backdrop-blur-md shadow-lg sticky top-0 z-40 border-b border-purple-100">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-lg">
-              <Activity className="text-white" size={20} />
-            </div>
-            <div>
-              <h1 className="text-base sm:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <Image
+              src="/logo.png"
+              alt="SymptoSafe"
+              width={160}
+              height={40}
+              priority
+              className="h-8 w-auto sm:h-10 object-contain drop-shadow-sm"
+            />
+            {/* {t('appName')} */}
+                          <h1 className="text-base sm:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 {t('appName')}
               </h1>
+            <div>
               <p className="text-[10px] sm:text-xs text-gray-600 font-medium hidden xs:block">{t('tagline')}</p>
             </div>
           </div>

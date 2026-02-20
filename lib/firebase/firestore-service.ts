@@ -99,9 +99,10 @@ export async function getUserSessions(userId: string, maxResults = 10): Promise<
   }
 
   try {
+    // Try reading from the new subcollection path first: users/{userId}/sessions
+    const sessionsRef = collection(db, 'users', userId, 'sessions');
     const q = query(
-      collection(db, SESSIONS_COLLECTION),
-      where('userId', '==', userId),
+      sessionsRef,
       orderBy('timestamp', 'desc'),
       limit(maxResults)
     );
@@ -113,14 +114,38 @@ export async function getUserSessions(userId: string, maxResults = 10): Promise<
       const data = doc.data() as DocumentData;
       sessions.push({
         id: doc.id,
-        userId: data.userId,
-        messages: data.messages,
+        userId: userId,
+        messages: data.messages || [],
         analysis: data.analysis,
         emergency: data.emergency,
-        timestamp: data.timestamp.toDate(),
-        language: data.language,
+        timestamp: data.timestamp?.toDate ? data.timestamp.toDate() : new Date(data.timestamp),
+        language: data.language || 'en',
       });
     });
+
+    // If no sessions found in new location, try old collection for backward compatibility
+    if (sessions.length === 0) {
+      const oldQ = query(
+        collection(db, SESSIONS_COLLECTION),
+        where('userId', '==', userId),
+        orderBy('timestamp', 'desc'),
+        limit(maxResults)
+      );
+
+      const oldQuerySnapshot = await getDocs(oldQ);
+      oldQuerySnapshot.forEach((doc) => {
+        const data = doc.data() as DocumentData;
+        sessions.push({
+          id: doc.id,
+          userId: data.userId,
+          messages: data.messages,
+          analysis: data.analysis,
+          emergency: data.emergency,
+          timestamp: data.timestamp.toDate(),
+          language: data.language,
+        });
+      });
+    }
 
     return sessions;
   } catch (error: unknown) {

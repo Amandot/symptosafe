@@ -2,22 +2,25 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, User, Bot, Image as ImageIcon, X } from 'lucide-react';
+import { Send, Loader2, User, Bot, Image as ImageIcon, X, HelpCircle } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { useAppStore } from '@/lib/store/useAppStore';
 import { useTranslation } from '@/lib/i18n/useTranslation';
+import { saveSessionToFirestore } from '@/lib/firestore';
 import type { Message } from '@/types';
 
 export default function ChatInterface() {
   const [input, setInput] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
+  const [lastUploadedImage, setLastUploadedImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
   
   const {
+    user,
     messages,
     addMessage,
     setAnalysis,
@@ -25,10 +28,17 @@ export default function ChatInterface() {
     isLoading,
     setIsLoading,
     language,
+    analysis,
   } = useAppStore();
 
+  // useEffect(() => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // }, [messages]);
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Only auto-scroll if there are actually messages in the chat
+    if (messages.length > 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,6 +90,9 @@ export default function ChatInterface() {
     addMessage(userMessage);
     setInput('');
     const currentImage = imageBase64;
+    if (currentImage) {
+      setLastUploadedImage(currentImage);
+    }
     removeImage();
     setIsLoading(true);
 
@@ -121,6 +134,103 @@ export default function ChatInterface() {
           timestamp: new Date(),
         };
         addMessage(assistantMessage);
+
+        // Save session to Firestore if user is logged in
+        if (user?.uid && analysis) {
+          try {
+            await saveSessionToFirestore(user.uid, {
+              analysis,
+              userMessage: userMessage.content,
+              messages: [...messages, userMessage, assistantMessage],
+              language,
+            });
+          } catch (error) {
+            // Log error but don't break the UI flow
+            console.error('Failed to save session to Firestore:', error);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Analysis error:', error);
+      const errorMessage: Message = {
+        id: uuidv4(),
+        role: 'assistant',
+        content: t('analysisErrorTryAgain'),
+        timestamp: new Date(),
+      };
+      addMessage(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFollowUpQuestion = async (question: string) => {
+    if (isLoading) return;
+
+    const userMessage: Message = {
+      id: uuidv4(),
+      role: 'user',
+      content: question,
+      timestamp: new Date(),
+      imageUrl: lastUploadedImage || undefined,
+    };
+
+    addMessage(userMessage);
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post('/api/analyze', {
+        messages: [...messages, userMessage],
+        image: lastUploadedImage,
+        language,
+      });
+
+      const { emergency, analysis: newAnalysis } = response.data;
+
+      if (emergency) {
+        setEmergency(emergency);
+      }
+
+      if (newAnalysis) {
+        setAnalysis(newAnalysis);
+
+        const top = newAnalysis.possibleConditions?.[0];
+        const conditionLine = top?.name
+          ? `${t('mostLikelyCondition')}: ${top.name}${
+              typeof top.probability === 'number' ? ` ${t('approxPercent', { percent: top.probability })}` : ''
+            }`
+          : `${t('mostLikelyCondition')}: ${t('notEnoughInfoYet')}`;
+
+        const advice =
+          Array.isArray(newAnalysis.recommendation) && newAnalysis.recommendation.length > 0
+            ? `\n\n${t('whatYouCanDoNow')}:\n${newAnalysis.recommendation
+                .slice(0, 3)
+                .map((r: string) => `- ${r}`)
+                .join('\n')}`
+            : '';
+        
+        const assistantMessage: Message = {
+          id: uuidv4(),
+          role: 'assistant',
+          content: `${conditionLine}${advice}`,
+          timestamp: new Date(),
+        };
+        addMessage(assistantMessage);
+
+        // Save session to Firestore if user is logged in
+        if (user?.uid && newAnalysis) {
+          try {
+            await saveSessionToFirestore(user.uid, {
+              analysis: newAnalysis,
+              userMessage: userMessage.content,
+              messages: [...messages, userMessage, assistantMessage],
+              language,
+            });
+          } catch (error) {
+            // Log error but don't break the UI flow
+            console.error('Failed to save session to Firestore:', error);
+          }
+        }
       }
     } catch (error) {
       console.error('Analysis error:', error);
@@ -220,6 +330,34 @@ export default function ChatInterface() {
                 <Loader2 size={16} className="sm:w-[18px] sm:h-[18px] animate-spin text-indigo-600" />
                 <span className="text-xs sm:text-sm text-gray-700 font-medium">{t('analyzing')}</span>
               </div>
+            </div>
+          </motion.div>
+        )}
+
+        {!isLoading && analysis && analysis.followUpQuestions && analysis.followUpQuestions.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col gap-2 sm:gap-3"
+          >
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 font-medium px-1">
+              <HelpCircle size={16} className="text-amber-600" />
+              <span>{t('followUpQuestions')}</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {analysis.followUpQuestions.map((question, index) => (
+                <motion.button
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  onClick={() => handleFollowUpQuestion(question)}
+                  disabled={isLoading}
+                  className="bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 border border-amber-200 hover:border-amber-300 text-amber-900 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {question}
+                </motion.button>
+              ))}
             </div>
           </motion.div>
         )}

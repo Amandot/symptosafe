@@ -31,6 +31,12 @@ export const translations = {
     diagnosticConfidence: 'Diagnostic Confidence',
     informationCompleteness: 'Information Completeness',
     riskLevel: 'Risk Level',
+    triageRecommendation: 'Triage Recommendation',
+    redFlags: 'Red Flags',
+    selfCareTips: 'Self-Care Tips',
+    commonTriggers: 'Common Triggers',
+    trackingAdvice: 'Tracking Advice',
+    clinicalNextSteps: 'Clinical Next Steps',
     
     // Risk Levels
     critical: 'Critical',
@@ -233,6 +239,19 @@ export const translations = {
     featureModularNavBody: 'Glassmorphic bottom nav with smooth transitions between features.',
     startUsingSymptoSafe: 'Start using SymptoSafe',
     noLoginRequiredNotDiagnosis: 'No login required · This is not a medical diagnosis',
+
+    // Hospital Finder / Map
+    requestingLocation: 'Requesting your location...',
+    locationAccessRequired: 'Location Access Required',
+    enableLocation: 'Enable Location Access',
+    locationPrompt: 'Please grant location access to find nearby hospitals, clinics, and pharmacies.',
+    nearbyFacilities: 'Nearby Medical Facilities',
+    noFacilitiesFound: 'No medical facilities found nearby. Try expanding your search radius.',
+    getDirections: 'Get Directions',
+    directions: 'Go',
+    loadingFacilities: 'Loading nearby facilities...',
+    yourLocation: 'Your Location',
+    tryAgain: 'Try Again',
   },
   hi: {
     appName: 'सिम्प्टोसेफ',
@@ -260,6 +279,12 @@ export const translations = {
     diagnosticConfidence: 'निदान विश्वास',
     informationCompleteness: 'जानकारी पूर्णता',
     riskLevel: 'जोखिम स्तर',
+    triageRecommendation: 'ट्रायेज सिफारिश',
+    redFlags: 'लाल झंडे',
+    selfCareTips: 'स्व-देखभाल सुझाव',
+    commonTriggers: 'सामान्य ट्रिगर',
+    trackingAdvice: 'ट्रैकिंग सलाह',
+    clinicalNextSteps: 'नैदानिक अगले कदम',
     
     critical: 'गंभीर',
     high: 'उच्च',
@@ -445,6 +470,19 @@ export const translations = {
     featureModularNavBody: 'फीचर्स के बीच स्मूद ट्रांज़िशन के साथ ग्लासमॉर्फिक बॉटम नेव।',
     startUsingSymptoSafe: 'SymptoSafe शुरू करें',
     noLoginRequiredNotDiagnosis: 'लॉगिन आवश्यक नहीं · यह चिकित्सा निदान नहीं है',
+
+    // Hospital Finder / Map
+    requestingLocation: 'आपका स्थान अनुरोध किया जा रहा है...',
+    locationAccessRequired: 'स्थान पहुंच आवश्यक',
+    enableLocation: 'स्थान पहुंच सक्षम करें',
+    locationPrompt: 'कृपया निकटवर्ती अस्पताल, क्लिनिक और फार्मेसियों को खोजने के लिए स्थान पहुंच प्रदान करें।',
+    nearbyFacilities: 'निकटवर्ती चिकित्सा सुविधाएं',
+    noFacilitiesFound: 'कोई चिकित्सा सुविधा नहीं मिली। अपनी खोज त्रिज्या का विस्तार करने का प्रयास करें।',
+    getDirections: 'दिशा-निर्देश प्राप्त करें',
+    directions: 'जाएं',
+    loadingFacilities: 'निकटवर्ती सुविधाएं लोड हो रही हैं...',
+    yourLocation: 'आपका स्थान',
+    tryAgain: 'पुनः प्रयास करें',
   },
   mr: {
     appName: 'सिम्प्टोसेफ',
@@ -472,6 +510,12 @@ export const translations = {
     diagnosticConfidence: 'निदान आत्मविश्वास',
     informationCompleteness: 'माहिती पूर्णता',
     riskLevel: 'जोखीम पातळी',
+    triageRecommendation: 'ट्रायेज शिफारस',
+    redFlags: 'लाल झेंडे',
+    selfCareTips: 'स्व-काळजी टिप्स',
+    commonTriggers: 'सामान्य ट्रिगर्स',
+    trackingAdvice: 'ट्रॅकिंग सल्ला',
+    clinicalNextSteps: 'नैदानिक पुढील पायऱ्या',
     
     critical: 'गंभीर',
     high: 'उच्च',
@@ -657,5 +701,18 @@ export const translations = {
     featureModularNavBody: 'फीचर्समध्ये स्मूद ट्रान्झिशन्ससह ग्लासमॉर्फिक बॉटम नेव्ह.',
     startUsingSymptoSafe: 'SymptoSafe वापरायला सुरू करा',
     noLoginRequiredNotDiagnosis: 'लॉगिन आवश्यक नाही · हे वैद्यकीय निदान नाही',
+
+    // Hospital Finder / Map
+    requestingLocation: 'तुमचे स्थान विनंती केली जात आहे...',
+    locationAccessRequired: 'स्थान प्रवेश आवश्यक',
+    enableLocation: 'स्थान प्रवेश सक्षम करा',
+    locationPrompt: 'कृपया जवळची रुग्णालये, क्लिनिक आणि फार्मसी शोधण्यासाठी स्थान प्रवेश द्या.',
+    nearbyFacilities: 'जवळच्या वैद्यकीय सुविधा',
+    noFacilitiesFound: 'जवळ कोणतीही वैद्यकीय सुविधा सापडली नाही. तुमच्या शोध त्रिज्येचा विस्तार करण्याचा प्रयत्न करा.',
+    getDirections: 'दिशानिर्देश मिळवा',
+    directions: 'जा',
+    loadingFacilities: 'जवळच्या सुविधा लोड होत आहेत...',
+    yourLocation: 'तुमचे स्थान',
+    tryAgain: 'पुन्हा प्रयत्न करा',
   }
 };

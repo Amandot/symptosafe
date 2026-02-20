@@ -9,7 +9,10 @@ export interface Message {
 export interface Condition {
   name: string;
   probability: number;
+  description: string;
 }
+
+export type TriageRecommendation = 'EMERGENCY_ROOM' | 'URGENT_CARE' | 'ROUTINE_CONSULTATION' | 'SELF_CARE';
 
 export interface AIAnalysisResult {
   possibleConditions: Condition[];
@@ -19,6 +22,12 @@ export interface AIAnalysisResult {
   followUpQuestions: string[];
   riskLevel: 'critical' | 'high' | 'medium' | 'low';
   recommendation?: string[];
+  triageRecommendation: TriageRecommendation;
+  redFlags: string[];
+  selfCareTips: string[];
+  commonTriggers: string[];
+  trackingAdvice: string[];
+  clinicalNextSteps: string[];
 }
 
 export interface EmergencyResult {

@@ -28,10 +28,11 @@ CRITICAL RULES:
 7. If symptoms are vague → lower diagnostic confidence.
 8. If symptoms are detailed → higher confidence.
 9. If emergency patterns are detected → mark risk as CRITICAL.
-10. When analyzing images, correlate visual evidence (inflammation, discoloration, texture, swelling) with text description.
+10. When analyzing images, analyze visual characteristics (color, size, texture, swelling, inflammation, discoloration) and incorporate them into your reasoning and condition probabilities.
 11. NEVER provide definitive diagnoses - always express uncertainty.
 12. ALWAYS recommend consulting a healthcare professional in recommendations.
-13. IMPORTANT: All human-readable strings in the JSON (condition names, reasoning, followUpQuestions, recommendation) MUST be written in ${lang}.
+13. IMPORTANT: All human-readable strings in the JSON (condition names, descriptions, reasoning, followUpQuestions, etc.) MUST be written in ${lang}.
+14. If informationCompleteness is below 80, you MUST generate 2-4 followUpQuestions to gather more data.
 
 Return ONLY valid JSON in this exact format:
 {
@@ -42,11 +43,18 @@ Return ONLY valid JSON in this exact format:
   "possibleConditions": [
     {
       "name": "Specific Medical Condition Name",
-      "probability": number (must total 100 across all conditions)
+      "probability": number (must total 100 across all conditions),
+      "description": "Brief clinical description of this condition in context of the symptoms"
     }
   ],
   "reasoning": ["bullet point reasoning"],
-  "followUpQuestions": ["question 1", "question 2"]
+  "followUpQuestions": ["question 1", "question 2"] (REQUIRED if informationCompleteness < 80),
+  "triageRecommendation": "EMERGENCY_ROOM" | "URGENT_CARE" | "ROUTINE_CONSULTATION" | "SELF_CARE",
+  "redFlags": ["warning sign 1", "warning sign 2"] (symptoms that require immediate attention),
+  "selfCareTips": ["tip 1", "tip 2"] (safe self-care measures),
+  "commonTriggers": ["trigger 1", "trigger 2"] (potential causes or aggravating factors),
+  "trackingAdvice": ["advice 1", "advice 2"] (what to monitor and track),
+  "clinicalNextSteps": ["step 1", "step 2"] (recommended clinical actions)
 }
 
 Guidelines:
@@ -54,10 +62,17 @@ Guidelines:
 - Each analysis must be UNIQUE based on the actual symptoms described
 - Probabilities across all conditions MUST sum to 100
 - Include 2-5 possible conditions ranked by probability
-- Provide 2-4 follow-up questions to gather more information
+- Provide 2-4 follow-up questions to gather more information (MANDATORY if informationCompleteness < 80)
 - Include 2-3 safety-focused recommendations
+- triageRecommendation should match riskLevel: critical/high → EMERGENCY_ROOM or URGENT_CARE, medium → ROUTINE_CONSULTATION, low → SELF_CARE or ROUTINE_CONSULTATION
+- redFlags should highlight symptoms requiring immediate medical attention
+- selfCareTips should be safe, evidence-based suggestions
+- commonTriggers should identify potential causes or aggravating factors
+- trackingAdvice should guide what to monitor
+- clinicalNextSteps should outline recommended medical actions
 - Be medically cautious and safety-first
 - If unsure, lower confidence rather than hallucinating
+- If an image is provided, analyze visual characteristics and incorporate them into reasoning
 
 Examples of GOOD condition names:
 - "Viral Upper Respiratory Infection"
@@ -65,6 +80,8 @@ Examples of GOOD condition names:
 - "Acute Gastritis"
 - "Allergic Rhinitis"
 - "Musculoskeletal Strain"
+- "Contact Dermatitis"
+- "Atopic Dermatitis"
 
 Examples of BAD (too generic) condition names:
 - "General symptom pattern"
@@ -90,15 +107,22 @@ export async function analyzeSymptoms(
     });
 
     // Build conversation history with multimodal support
-    const conversationHistory = messages.map((msg) => {
-      if (msg.imageUrl && msg.role === 'user') {
+    // If imageBase64 is provided, attach it to the latest user message
+    const conversationHistory = messages.map((msg, index) => {
+      const isLatestUserMessage = index === messages.length - 1 && msg.role === 'user';
+      const hasImage = (msg.imageUrl || (isLatestUserMessage && imageBase64));
+      const imageToUse = isLatestUserMessage && imageBase64 ? imageBase64 : msg.imageUrl;
+      
+      if (hasImage && msg.role === 'user') {
+        // Format image URL properly - OpenAI expects data URLs or URLs
+        const imageUrl = imageToUse?.startsWith('data:') ? imageToUse : `data:image/jpeg;base64,${imageToUse}`;
         return {
           role: 'user' as const,
           content: [
-            { type: 'text' as const, text: msg.content },
+            { type: 'text' as const, text: msg.content || 'Please analyze this image' },
             {
               type: 'image_url' as const,
-              image_url: { url: msg.imageUrl },
+              image_url: { url: imageUrl },
             },
           ],
         };
@@ -135,14 +159,27 @@ export async function analyzeSymptoms(
     const confidenceScore = result.diagnosticConfidence ?? result.confidenceScore ?? 0;
     const recommendation = result.recommendation || [];
 
+    // Ensure conditions have descriptions
+    const conditionsWithDescriptions = result.possibleConditions.map((cond: any) => ({
+      name: cond.name || 'Unknown Condition',
+      probability: cond.probability || 0,
+      description: cond.description || 'No description available',
+    }));
+
     return {
-      possibleConditions: result.possibleConditions || [],
+      possibleConditions: conditionsWithDescriptions,
       reasoning: result.reasoning || [],
       confidenceScore: Math.min(100, Math.max(0, confidenceScore)),
       informationCompleteness: Math.min(100, Math.max(0, result.informationCompleteness || 0)),
       followUpQuestions: result.followUpQuestions || [],
       riskLevel: result.riskLevel || 'medium',
       recommendation,
+      triageRecommendation: result.triageRecommendation || 'ROUTINE_CONSULTATION',
+      redFlags: result.redFlags || [],
+      selfCareTips: result.selfCareTips || [],
+      commonTriggers: result.commonTriggers || [],
+      trackingAdvice: result.trackingAdvice || [],
+      clinicalNextSteps: result.clinicalNextSteps || [],
     };
   } catch (error) {
     console.error('AI Analysis Error, falling back to local heuristic:', error);
@@ -176,10 +213,12 @@ export async function analyzeSymptoms(
         {
           name: conditionName,
           probability: 70,
+          description: 'This condition is based on common symptom patterns and requires professional evaluation.',
         },
         {
           name: 'Other causes not fully specified by current information',
           probability: 30,
+          description: 'Additional information may help narrow down the possible causes.',
         },
       ],
       reasoning: [
@@ -188,12 +227,32 @@ export async function analyzeSymptoms(
       ],
       confidenceScore: 40,
       informationCompleteness: 40,
-      // Remove generic follow‑up questions – UI will now focus on the condition info above
-      followUpQuestions: [],
+      followUpQuestions: [
+        'Can you describe the severity of your symptoms on a scale of 1-10?',
+        'How long have these symptoms been present?',
+        'Are there any factors that make the symptoms better or worse?',
+      ],
       riskLevel,
       recommendation: [
         'Use this information only as a general guide, not as a diagnosis.',
         'Consult with a healthcare professional for proper evaluation, especially if symptoms worsen or feel severe.',
+      ],
+      triageRecommendation: riskLevel === 'critical' || riskLevel === 'high' ? 'URGENT_CARE' : 'ROUTINE_CONSULTATION',
+      redFlags: riskLevel === 'critical' || riskLevel === 'high' 
+        ? ['Severe symptoms require immediate medical attention']
+        : [],
+      selfCareTips: [
+        'Rest and stay hydrated',
+        'Monitor your symptoms closely',
+      ],
+      commonTriggers: [],
+      trackingAdvice: [
+        'Keep track of symptom severity and frequency',
+        'Note any changes in your condition',
+      ],
+      clinicalNextSteps: [
+        'Schedule an appointment with a healthcare provider',
+        'Bring a detailed symptom history to your appointment',
       ],
     };
 

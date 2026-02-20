@@ -208,6 +208,8 @@ export async function analyzeSymptoms(
       riskLevel = 'medium';
     }
 
+    const isHighRisk = riskLevel === 'high';
+
     const fallback: AIAnalysisResult = {
       possibleConditions: [
         {
@@ -237,8 +239,8 @@ export async function analyzeSymptoms(
         'Use this information only as a general guide, not as a diagnosis.',
         'Consult with a healthcare professional for proper evaluation, especially if symptoms worsen or feel severe.',
       ],
-      triageRecommendation: riskLevel === 'critical' || riskLevel === 'high' ? 'URGENT_CARE' : 'ROUTINE_CONSULTATION',
-      redFlags: riskLevel === 'critical' || riskLevel === 'high' 
+      triageRecommendation: isHighRisk ? 'URGENT_CARE' : 'ROUTINE_CONSULTATION',
+      redFlags: isHighRisk
         ? ['Severe symptoms require immediate medical attention']
         : [],
       selfCareTips: [
